@@ -8,12 +8,9 @@
 class HardwareInterface
 {
 public:
-    template <typename T>
-    bool init(const T&){}
-    template <int N>
-    uint32_t send(const std::array<can_frame, N>&){};
-    template <int N>
-    uint32_t recv(std::array<can_frame, N>&){};
+    virtual bool init()=0;
+    virtual uint32_t send(const can_frame[], uint32_t)=0;
+    virtual uint32_t recv(can_frame[])=0;
 };
 
 #endif
