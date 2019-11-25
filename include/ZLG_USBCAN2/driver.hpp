@@ -63,12 +63,13 @@ public:
                 std::cerr<<"Start can failed"<<std::endl;
                 return false;
             }
+            std::cout<<"ZLG USBCAN2 init success"<<std::endl;
             return true;
     }
 
     uint32_t send(const can_frame frames[], uint32_t len) override
     {
-        if(device_opened_) return 0;
+        if(!device_opened_) return 0;
         if(len == 0) return 0;
         VCI_CAN_OBJ can[len];
         

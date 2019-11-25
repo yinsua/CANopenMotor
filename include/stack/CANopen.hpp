@@ -11,12 +11,12 @@
 
 class CANopen{
 protected:
-    std::shared_ptr<HardwareInterface> device_;
+    CAN::CAN_Ptr can_;
     std::shared_ptr<OD> od_;
     uint8_t addr_;
 public:
-    CANopen(const std::shared_ptr<HardwareInterface>& device, uint8_t addr, const std::shared_ptr<OD>& od)
-        : device_(device), od_(od), addr_(addr), sdo(device, od, addr)
+    CANopen(decltype(can_) can, uint8_t addr, OD::OD_Ptr od)
+        : can_(can), od_(od), addr_(addr), sdo(can, od, addr)
     {
         od_->init();
     }

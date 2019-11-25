@@ -9,10 +9,9 @@
 #include <sstream>
 #include <variant>
 
-using OD_Container = std::map<std::string, std::map<std::string, std::string>>;
-
 class OD{
 private:
+    using OD_Container = std::map<std::string, std::map<std::string, std::string>>;
     std::string path_;
     std::ifstream od_file_stream_;
     OD_Container od_;
@@ -33,6 +32,7 @@ private:
     }
 
 public:
+    using OD_Ptr = std::shared_ptr<OD>;
     OD(std::string path)
         : path_(path)
     {

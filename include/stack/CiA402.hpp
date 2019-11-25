@@ -5,8 +5,8 @@
 
 class CiA402 : public CANopen{
 public:
-    CiA402(const std::shared_ptr<HardwareInterface>& device, uint8_t addr, const std::shared_ptr<OD>& od)
-        : CANopen(device, addr, od)
+    CiA402(CAN::CAN_Ptr can, uint8_t addr, OD::OD_Ptr od)
+        : CANopen(can, addr, od)
     {
         //
     }
