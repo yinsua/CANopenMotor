@@ -42,8 +42,9 @@ public:
         for(int i=0; i<len; i++){
             std::cout<<prefix<<std::hex<<frames[i].can_id<<
                 " ["<<int(frames[i].can_dlc)<<"] ";
-            for(int j=0; j<8; j++){
-                std::cout<<std::setw(2)<<std::setfill('0')<<int(frames[i].data[j])<<" ";
+            std::string str="";
+            for(int j=0; j<frames[i].can_dlc; j++){
+                std::cout<<std::setw(2)<<std::uppercase<<std::setfill('0')<<int(frames[i].data[j])<<" ";
             }
             std::cout<<std::dec<<std::endl;
         }

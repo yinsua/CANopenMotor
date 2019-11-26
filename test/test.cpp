@@ -2,6 +2,7 @@
 #include <thread>
 #include <future>
 #include <chrono>
+#include <optional>
 
 #define PRINT_DEBUG
 
@@ -12,7 +13,7 @@
 #include "stack/SDO.hpp"
 
 void can_init_test(){
-    DeviceStruct device({4, 0, 0, 0x1400, 0, 0, 3, 1000, 100, 64});
+    DeviceStruct device({4, 0, 0, 0x1400, 0, 0, 3, 1000, 500, 64});
     auto can = std::make_shared<Driver>(device);
     if(can->init())
         std::cout<<"init success"<<std::endl;
@@ -47,6 +48,17 @@ void cia402_test(){
 
 int main(int argc, char** argv){
 #if 0
+    int64_t a = 0xFD;
+    uint8_t b = a;
+    std::cout<<std::hex<<std::to_string(b)<<std::endl;
+    int8_t c = a;
+    std::cout<<std::to_string(c)<<std::endl;
+    int64_t d = c;
+    std::cout<<std::to_string(d)<<std::endl;
+    return 0;
+#endif
+
+#if 0
     // can_init_test();
     // od_test();
     // can_test();
@@ -55,12 +67,17 @@ int main(int argc, char** argv){
     DeviceStruct device({4, 0, 0, 0x1400, 0, 0, 3, 1000, 100, 64});
     auto driver = std::make_shared<Driver>(device);
     auto can0 = std::make_shared<CAN>(driver);
+    // NOTE: this line must be put into main function !
     auto can0_thread = std::async(std::launch::async, CAN::run, can0);
     auto od = std::make_shared<OD>("/home/waterjet/iPOS.v1.09.eds");
     CiA402 motor0(can0, 1, od);
+    motor0.nmt.init_node();
+    motor0.nmt.start_node();
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    motor0.set_interpolation_time();
 
-    auto a = motor0.sdo(0x1400,1).read();
-    std::cout<<std::to_string(a)<<std::endl;
+    auto v = motor0.sdo(0x1400,1).read();
+    std::cout<<std::to_string(v)<<std::endl;
 
     while(1){
         std::this_thread::sleep_for(std::chrono::seconds(1));

@@ -77,7 +77,9 @@ public:
             can[i].ID = frames[i].can_id;
             can[i].SendType = device_.TxType;
             can[i].DataLen = frames[i].can_dlc;
-            can[i].Data[i] = frames[i].data[i];
+            for(int j=0; j<can[i].DataLen; j++){
+                can[i].Data[j] = frames[i].data[j];
+            }
             can[i].ExternFlag = 0;
             can[i].RemoteFlag = 0;
         }
