@@ -34,7 +34,9 @@ const static std::map<uint32_t, std::string> SdoAbortCodes = {
 };
 
 class SDO{
+public:
     using Variant_Type = std::variant<int8_t,int16_t,int32_t,uint8_t,uint16_t,uint32_t>;
+    using SDO_Ptr = std::shared_ptr<SDO>;
 private:
     CAN::CAN_Ptr can_;
     OD::OD_Ptr od_;
@@ -42,8 +44,6 @@ private:
     uint32_t current_index_;
     int8_t current_sub_index_;
     uint8_t od_t_;
-
-    
 
     int64_t get_value4frame(const can_frame& frame, uint8_t od_t){
         /*

@@ -11,6 +11,8 @@
 #include "stack/CiA402.hpp"
 #include "stack/CAN.hpp"
 #include "stack/SDO.hpp"
+#include "stack/PDO.hpp"
+#include "stack/SYNC.hpp"
 
 void can_init_test(){
     DeviceStruct device({4, 0, 0, 0x1400, 0, 0, 3, 1000, 500, 64});

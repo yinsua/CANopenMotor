@@ -18,7 +18,10 @@ public:
     CANopen(decltype(can_) can, uint8_t addr, OD::OD_Ptr od)
         : can_(can), od_(od), addr_(addr), 
           sdo(can, od, addr),
-          nmt(can, addr)
+          nmt(can, addr),
+          rpdo(sdo),
+          tpdo(sdo),
+          sync(rpdo, tpdo)
     {
         od_->init();
     }
@@ -31,6 +34,11 @@ public:
         sdo(0x60C2, 1).write(10);
         sdo(0x60C2, 2).write(-3);
     }
+
+    RPDO rpdo;
+    TPDO tpdo;
+
+    SYNC sync;
 };
 
 #endif
