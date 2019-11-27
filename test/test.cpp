@@ -13,6 +13,7 @@
 #include "stack/SDO.hpp"
 #include "stack/PDO.hpp"
 #include "stack/SYNC.hpp"
+#include "stack/NMT.hpp"
 
 void can_init_test(){
     DeviceStruct device({4, 0, 0, 0x1400, 0, 0, 3, 1000, 500, 64});
@@ -78,9 +79,31 @@ int main(int argc, char** argv){
     std::this_thread::sleep_for(std::chrono::seconds(1));
     motor0.set_interpolation_time();
 
-    auto v = motor0.sdo(0x1400,1).read();
-    std::cout<<std::to_string(v)<<std::endl;
+    auto cout_hex_num = [](int64_t v)
+    {std::cout<<std::hex<<std::uppercase<<v<<std::dec<<std::endl;};
 
+    auto v = motor0.sdo(0x1400,1).read();
+    cout_hex_num(v);
+
+    Pdo_Ele ctl_word;
+    Pdo_Ele target_pos;
+    motor0.rpdo.disenable();
+    // TODO: motor0.rpdo[0x6040]
+    if( auto x = motor0.rpdo.add(0x6040))
+        ctl_word = x.value();
+    if( auto x = motor0.rpdo.add(0x607A))
+        target_pos = x.value();
+    motor0.rpdo.enable();
+
+    Pdo_Ele act_status;
+    Pdo_Ele act_pos;
+    motor0.tpdo.disenable();
+    if( auto x = motor0.tpdo.add(0x6041))
+        act_status = x.value();
+    if( auto x = motor0.tpdo.add(0x6064))
+        act_pos = x.value();
+    motor0.tpdo.enable();
+    // motor0.sync.start();
     while(1){
         std::this_thread::sleep_for(std::chrono::seconds(1));
         std::cout<<"^"<<std::flush;

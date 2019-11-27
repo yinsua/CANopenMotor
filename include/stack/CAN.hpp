@@ -64,13 +64,21 @@ public:
             uint32_t recv_count=0;
             if(recv_count = can->hw_interface_->recv(recv_frames)){
                 for(int i=0; i<recv_count; i++){
-                    if(recv_frames[i].can_id & 0x580 == 0x580){
-                        // SDO response
+                    if(recv_frames[i].can_id & 0x580 == 0x580)
+                    {// SDO response
                         {
                             std::lock_guard<std::mutex> lg(can->sdo_mutex);
                             can->sdo_deque.push_back(recv_frames[i]);
                         }
                         can->sdo_cv.notify_all();
+                    }
+                    else if(recv_frames[i].can_id < 0x580 && recv_frames[i].can_id > 0x180)
+                    {// PDO response
+                        {
+                            std::lock_guard<std::mutex> lg(can->pdo_mutex);
+                            can->pdo_deque.push_back(recv_frames[i]);
+                        }
+                        can->pdo_cv.notify_all();
                     }
                 }
                 can->print_can_frames("RECV ", recv_frames, recv_count);

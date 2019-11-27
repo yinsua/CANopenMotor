@@ -19,9 +19,9 @@ public:
         : can_(can), od_(od), addr_(addr), 
           sdo(can, od, addr),
           nmt(can, addr),
-          rpdo(sdo),
-          tpdo(sdo),
-          sync(rpdo, tpdo)
+          rpdo(sdo, addr, od, 0x1600, 0x200),
+          tpdo(sdo, addr, od, 0x1A00, 0x180),
+          sync(can, rpdo, tpdo)
     {
         od_->init();
     }
@@ -35,8 +35,8 @@ public:
         sdo(0x60C2, 2).write(-3);
     }
 
-    RPDO rpdo;
-    TPDO tpdo;
+    PDO rpdo;
+    PDO tpdo;
 
     SYNC sync;
 };

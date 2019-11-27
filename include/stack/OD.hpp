@@ -101,6 +101,44 @@ public:
             return std::stoi(od_[int2str(index)+"sub"+int2str(sub_index)]["DataType"], 0, 16);
         }
     }
+
+    uint8_t get_byte(int index, int sub_index=-1)
+    {
+        auto type = get_type(index, sub_index);
+        uint8_t result = 0;
+        switch(type)
+        {
+            case 2:
+            case 5: result = 1;break;
+            case 3:
+            case 6: result = 2;break;
+            case 4:
+            case 7: result = 4;break;
+            default: std::cerr<<"get byte error, invalid type"<<std::endl;break;
+        }
+        return result;
+    }
+
+    /**
+     *  return value: 
+     *      true -> signed      false -> unsigned
+     */ 
+    bool get_signed(int index, int sub_index=-1)
+    {
+        auto type = get_type(index, sub_index);
+        bool result = false;
+        switch(type)
+        {
+            case 2:
+            case 3: 
+            case 4: result = true;break;
+            case 5: 
+            case 6:
+            case 7: result = false;break;
+            default: std::cerr<<"get signed error, invalid type"<<std::endl;break;
+        }
+        return result;
+    }
 };
 
 #endif
