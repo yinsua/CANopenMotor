@@ -121,7 +121,8 @@ public:
 
     /**
      *  return value: 
-     *      true -> signed      false -> unsigned
+     *      true -> signed
+     *      false -> unsigned
      */ 
     bool get_signed(int index, int sub_index=-1)
     {

@@ -5,7 +5,8 @@
 #include <atomic>           // for atomic_bool
 #include <unordered_map>    // for unordered_map
 #include <memory>           // for shared_ptr
-#include <deque>
+#include <deque>            // for deque
+#include <unordered_map>    // for unordered_map
 #include <optional>
 #include <linux/can.h>
 #include "SDO.hpp"
@@ -13,14 +14,50 @@
 
 class SYNC;
 
+/**
+ *  A RPDO/TPDO struct
+ * 
+ */ 
 typedef struct PdoStruct
 {
-    int64_t value;
+    class V
+    {
+    private:
+        int64_t v;
+        std::atomic_bool& need_update_;
+    public:
+        V(std::atomic_bool& need_update)
+            : v(0), need_update_(need_update)
+        {}
+        int64_t& operator =(int64_t v1)
+        {
+            v = v1;
+            need_update_.store(true);
+            return v;
+        }
+        int64_t& operator()()
+        {
+            return v;
+        }
+        void to_int8()
+        {
+            v = (int8_t)v;
+        }
+        void to_int16()
+        {
+            v = (int16_t)v;
+        }
+        void to_int32()
+        {
+            v = (int32_t)v;
+        }
+    };
+    // TODO: value modify notify
+    V value;
     uint8_t byte_size;
-    uint8_t od_type;
     bool is_signed;
-    PdoStruct(decltype(value) v, decltype(byte_size) s, decltype(is_signed) b)
-        : value(v), byte_size(s), is_signed(b)
+    PdoStruct(std::atomic_bool& need_update, decltype(byte_size) s, decltype(is_signed) b)
+        : value(need_update), byte_size(s), is_signed(b)
     {}
     // TODO: need function to execute : value = (TYPE)value;
     void convert()
@@ -29,9 +66,9 @@ typedef struct PdoStruct
         {
             switch(byte_size)
             {
-                case 1: value = (int8_t)value;break;
-                case 2: value = (int16_t)value;break;
-                case 4: value = (int32_t)value;break;
+                case 1: value.to_int8(); break;
+                case 2: value.to_int16();break;
+                case 4: value.to_int32();break;
                 default: std::cerr<<"except PDO value convert"<<std::endl;break;
             }
         }
@@ -92,6 +129,7 @@ class PDO
     friend class SYNC;
 private:
     std::deque<PDO_X> pdos_;
+    std::unordered_map<uint32_t, Pdo_Ele> index_map_;
     SDO& sdo_;
     uint8_t addr_;
     OD::OD_Ptr od_;
@@ -103,6 +141,17 @@ public:
         {
             pdos_.emplace_back(begin_index + i, begin_can_id + (i*0x100) + addr_);
         }
+    }
+
+    int64_t& operator [](uint32_t _index)
+    {
+        if(index_map_.find(_index) == index_map_.end())
+        {
+            std::cerr<<"The PDO index don't exist"<<std::endl;
+            int64_t temp=0;
+            return temp;
+        }
+        return index_map_[_index]->value();
     }
 
     void disenable()
@@ -155,6 +204,10 @@ public:
             case 2: /*one byte*/ result = search_space_and_send_frame((obj<<16)+0x10, 2, is_signed);break;
             case 4: /*one byte*/ result = search_space_and_send_frame((obj<<16)+0x20, 4, is_signed);break;
             default: result = std::nullopt;break;
+        }
+        if(result)
+        {
+            index_map_[obj] = result.value();
         }
         return result;
     }
